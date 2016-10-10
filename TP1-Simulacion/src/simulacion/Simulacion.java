@@ -18,6 +18,8 @@ public class Simulacion {
 	
 	private static final int INTERVALOS_HISTOGRAMA = 14;
 	
+	private static final double BASE_INTERVALOS = 1;
+	
 	
 	
 	public static void main(String[] args) {
@@ -35,9 +37,9 @@ public class Simulacion {
 		int cantT15 = 0;
 		int cant130 = 0;
 		
-		Map<Integer, Integer> histograma = new HashMap<Integer, Integer>();
+		Map<Integer, Integer> frecuenciasAbsolutas = new HashMap<Integer, Integer>();
 		for (int i = 0; i < INTERVALOS_HISTOGRAMA; i++ ){
-			histograma.put(i, 0);
+			frecuenciasAbsolutas.put(i, 0);
 		}
 		
 		for (int i = 0; i < MAX_NUMS; i++){
@@ -65,9 +67,9 @@ public class Simulacion {
 			int ultimoIntervalo = INTERVALOS_HISTOGRAMA - 1;
 			if (tiempoEspera < ultimoIntervalo){
 				int intervalo = (int) tiempoEspera;
-				histograma.put(intervalo, histograma.get(intervalo) + 1);
+				frecuenciasAbsolutas.put(intervalo, frecuenciasAbsolutas.get(intervalo) + 1);
 			} else {
-				histograma.put(ultimoIntervalo, histograma.get(ultimoIntervalo) + 1);
+				frecuenciasAbsolutas.put(ultimoIntervalo, frecuenciasAbsolutas.get(ultimoIntervalo) + 1);
 			}
 			
 		}
@@ -83,6 +85,18 @@ public class Simulacion {
 		System.out.println("");
 		System.out.println("Cantidad de Te = T130: " + cant130);
 		System.out.println("Proporcion de Te = T130: " + formatDouble(cant130 / (double)MAX_NUMS));
+		
+		for (Integer intervalo : frecuenciasAbsolutas.keySet()){
+			double frecuenciaRelativa = frecuenciasAbsolutas.get(intervalo) / (double) MAX_NUMS;
+			double funcionHistograma;
+			int ultimoIntervalo = INTERVALOS_HISTOGRAMA - 1;
+			if (intervalo < ultimoIntervalo){
+				funcionHistograma = frecuenciaRelativa / BASE_INTERVALOS;
+			} else {
+				funcionHistograma = 0; //Base = infinito
+			}
+			//Imprimir tabla
+		}
 		
 	}
 	
