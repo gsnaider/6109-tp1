@@ -20,7 +20,7 @@ public class Simulacion {
 	
 	private static final double BASE_INTERVALOS = 1;
 	
-	
+	private static final int MINUTOS_EN_HORA = 60;
 	
 	public static void main(String[] args) {
 		
@@ -36,6 +36,7 @@ public class Simulacion {
 		double promedio = 0;
 		int cantT15 = 0;
 		int cant130 = 0;
+		double maxTe = 0;
 		
 		Map<Integer, Integer> frecuenciasAbsolutas = new HashMap<Integer, Integer>();
 		for (int i = 0; i < INTERVALOS_HISTOGRAMA; i++ ){
@@ -72,6 +73,10 @@ public class Simulacion {
 				frecuenciasAbsolutas.put(ultimoIntervalo, frecuenciasAbsolutas.get(ultimoIntervalo) + 1);
 			}
 			
+			if (tiempoEspera > maxTe){
+				maxTe = tiempoEspera;
+			}
+			
 		}
 		
 		promedio = promedio / MAX_NUMS;
@@ -86,20 +91,66 @@ public class Simulacion {
 		System.out.println("Cantidad de Te = T130: " + cant130);
 		System.out.println("Proporcion de Te = T130: " + formatDouble(cant130 / (double)MAX_NUMS));
 		
+		
+		imprimirCabeceraHistograma();
 		for (Integer intervalo : frecuenciasAbsolutas.keySet()){
-			double frecuenciaRelativa = frecuenciasAbsolutas.get(intervalo) / (double) MAX_NUMS;
-			double funcionHistograma;
+			int frecuenciaAbsoluta = frecuenciasAbsolutas.get(intervalo);
+			double frecuenciaRelativa = frecuenciaAbsoluta / (double) MAX_NUMS;
 			int ultimoIntervalo = INTERVALOS_HISTOGRAMA - 1;
-			if (intervalo < ultimoIntervalo){
-				funcionHistograma = frecuenciaRelativa / BASE_INTERVALOS;
+			double baseIntervalo;
+			boolean esUltimoIntervalo = intervalo == ultimoIntervalo;
+			if (esUltimoIntervalo) {
+				baseIntervalo = maxTe - ultimoIntervalo;
 			} else {
-				funcionHistograma = 0; //Base = infinito
+				baseIntervalo = BASE_INTERVALOS;
 			}
-			//Imprimir tabla
+			
+			double funcionHistograma;
+			if (baseIntervalo > 0){
+				funcionHistograma = frecuenciaRelativa / baseIntervalo;
+			} else {
+				funcionHistograma  = 0;
+			}
+			imprimirRegistroHistograma(intervalo, intervalo + baseIntervalo, esUltimoIntervalo, frecuenciaAbsoluta, frecuenciaRelativa, funcionHistograma);
 		}
 		
 	}
 	
+	private static void imprimirCabeceraHistograma() {
+		System.out.println("");
+		System.out.println("Clase\t\tf_abs\tf_rel\tf_histograma");
+	}
+	
+	private static void imprimirRegistroHistograma(int intervaloMin, double intervaloMax, boolean esUltimoIntervalo, int frecuenciaAbsoluta, double frecuenciaRelativa,
+			double funcionHistograma) {
+		
+		String record = "";
+		
+		record += formatIntervalo(intervaloMin, intervaloMax, esUltimoIntervalo);
+		if (!esUltimoIntervalo){
+			record += "\t";
+		}
+		record += "\t" + frecuenciaAbsoluta;
+		record += "\t" + formatDouble(frecuenciaRelativa);
+		record += "\t" + formatDouble(funcionHistograma);
+		
+		System.out.println(record);
+	}
+
+	private static String formatIntervalo(int intervaloMin, double intervaloMax, boolean esUltimoIntervalo) {
+		String intervalo = "[" + intervaloMin + ";";
+		if (esUltimoIntervalo){
+			intervalo += formatDouble(intervaloMax) + "]";
+		} else {
+			intervalo += (int)intervaloMax + ")";
+		}
+		return intervalo;
+	}
+
+	private static boolean isInteger(double num) {
+		return ((num == Math.floor(num)) && !Double.isInfinite(num));
+	}
+
 	private static String formatDouble(double number){
 		NumberFormat formatter = new DecimalFormat("#0.000");
 		return formatter.format(number);
@@ -122,23 +173,13 @@ public class Simulacion {
 		System.out.println(record);
 		
 	}
-
+	
 	private static double inversaGeneralizada(double p, double lambda){
 		return -Math.log(1 - p)/lambda;
 	}
-	
 
 	private static double calcularLambda(int nroPadron) {
-		int hora = getHora();
-		return (nroPadron + 1)/(double)hora;
+		return (nroPadron + 1)/(double)MINUTOS_EN_HORA;
 	}
-
-	private static int getHora() {
-		Date date = new Date();   // given date
-		Calendar calendar = Calendar.getInstance(); // creates a new calendar instance
-		calendar.setTime(date);   // assigns calendar to given date 
-		return calendar.get(Calendar.HOUR_OF_DAY); // gets hour in 24h format
-	}
-
 
 }
